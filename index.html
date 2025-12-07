@@ -500,17 +500,10 @@
         );
 
         const Projects = () => {
-            const [loadingState, setLoadingState] = React.useState(null);
-            
-            const handleAction = (e, project, type) => {
-                e.preventDefault(); e.stopPropagation();
-                if (loadingState) return;
-                setLoadingState({ id: project.id, type });
-                setTimeout(() => {
-                    const url = type === 'demo' ? project.link : 'https://github.com/buzhixingyun';
-                    if (url && url !== '#') window.open(url, '_blank', 'noopener,noreferrer');
-                    setLoadingState(null);
-                }, 800);
+            const handleCardClick = (link) => {
+                if (link && link !== '#') {
+                    window.open(link, '_blank', 'noopener,noreferrer');
+                }
             };
 
             return (
@@ -520,32 +513,35 @@
                             <span className="w-2 h-8 bg-secondary rounded-full transform rotate-12"></span>精选作品<span className="w-2 h-8 bg-primary rounded-full transform -rotate-12"></span>
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                            {PROJECTS.map((project) => {
-                                const isLoadingThisCode = loadingState?.id === project.id && loadingState.type === 'code';
-                                const isLoadingThisDemo = loadingState?.id === project.id && loadingState.type === 'demo';
-                                return (
-                                    <div key={project.id} className="bg-white/95 backdrop-blur-xl border-2 border-white/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 ease-out hover:-translate-y-2 flex flex-col group">
-                                        <div className="relative overflow-hidden aspect-video bg-white">
-                                            <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center gap-6 backdrop-blur-[2px]">
-                                                <button onClick={(e) => handleAction(e, project, 'code')} className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${isLoadingThisCode ? 'bg-primary text-white scale-110 ring-4 ring-primary/30' : 'bg-white text-text hover:scale-110 border-2 border-primary/10'}`}>
-                                                    {isLoadingThisCode ? <Icons.Loader2 /> : <Icons.Github />}
-                                                </button>
-                                                <button onClick={(e) => handleAction(e, project, 'demo')} className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${isLoadingThisDemo ? 'bg-secondary text-white scale-110 ring-4 ring-secondary/30' : 'bg-white text-text hover:scale-110 border-2 border-secondary/10'}`}>
-                                                    {isLoadingThisDemo ? <Icons.Loader2 /> : <Icons.ExternalLink />}
-                                                </button>
-                                            </div>
-                                            <SafeImage src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                        </div>
-                                        <div className="p-6 flex-1 flex flex-col">
-                                            <h3 className="text-xl font-bold mb-2 text-text group-hover:text-primary transition-colors">{project.title}</h3>
-                                            <p className="text-text/80 mb-6 line-clamp-3 flex-1 text-sm leading-relaxed font-medium">{project.description}</p>
-                                            <div className="flex flex-wrap gap-2 mt-auto">
-                                                {project.tags.map((tag) => <span key={tag} className="px-3 py-1 bg-white text-xs text-primary font-bold rounded-full border border-primary/20 transition-all duration-300 hover:bg-primary hover:text-white hover:scale-105">#{tag}</span>)}
+                            {PROJECTS.map((project) => (
+                                <div 
+                                    key={project.id} 
+                                    onClick={() => handleCardClick(project.link)}
+                                    className="bg-white/95 backdrop-blur-xl border-2 border-white/60 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 ease-out flex flex-col group cursor-pointer relative hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-2 active:scale-95 active:bg-primary/5 active:border-primary/30"
+                                >
+                                    <div className="relative overflow-hidden aspect-video bg-white">
+                                        <SafeImage src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                        
+                                        <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-500" />
+                                        
+                                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                                            <div className="bg-white/90 backdrop-blur-md text-primary text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                                                <span>查看</span>
+                                                <Icons.ExternalLink className="w-3 h-3" />
                                             </div>
                                         </div>
                                     </div>
-                                );
-                            })}
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-xl font-bold text-text group-hover:text-primary transition-colors">{project.title}</h3>
+                                        </div>
+                                        <p className="text-text/80 mb-6 line-clamp-3 flex-1 text-sm leading-relaxed font-medium">{project.description}</p>
+                                        <div className="flex flex-wrap gap-2 mt-auto">
+                                            {project.tags.map((tag) => <span key={tag} className="px-3 py-1 bg-white text-xs text-primary font-bold rounded-full border border-primary/20 transition-all duration-300 group-hover:bg-primary/5">#{tag}</span>)}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </section>
