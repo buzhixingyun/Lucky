@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="referrer" content="no-referrer" />
     <title>小泉の窝 | Xiaoquan's Nest</title>
     
     <!-- Google Fonts -->
@@ -72,9 +73,6 @@
         // ==========================================
         
         // --- 豆包 (Doubao/Volcengine) API 配置 ---
-        
-        // 安全金库：API Key 与 Model ID 混淆存储
-        // 防止源码直接搜索到完整 Key
         const _SECURE_VAULT = {
             // API Key: 80f406f1-4579-4afe-8b43-232c47f3e284
             _k_part1: "232c47f3e284",
@@ -84,7 +82,6 @@
             _k_part5: "80f406f1",
 
             // Model ID: ep-20251208035720-gnssz
-            // 拆分存储: gnssz, 035720, 20251208, ep
             _m_part1: "gnssz",
             _m_part2: "035720",
             _m_part3: "20251208",
@@ -95,16 +92,12 @@
             },
 
             getModelId: function() {
-                // 重组规则: ep-20251208035720-gnssz
                 return `${this._m_part4}-${this._m_part3}${this._m_part2}-${this._m_part1}`;
             }
         };
 
-        // Gitee 资源链接
         const AVATAR_URL = "https://gitee.com/konatatata/material/raw/master/tx.png";
         const STATIC_BG_URL = "https://gitee.com/konatatata/material/raw/master/beijing.png";
-        
-        // 关键资源列表，用于预加载
         const CRITICAL_ASSETS = [AVATAR_URL, STATIC_BG_URL];
 
         const PERSONAL_INFO = {
@@ -119,20 +112,20 @@
         const PROJECTS = [
             {
                 id: '1', title: '光遇工具合集', description: 'Sky光遇玩家的必备神器！包含身高测量、乐谱练习、复刻预测等实用功能。为了光之子们而用爱发电~', tags: ['Sky', 'React', 'Tool', 'Game'],
-                imageUrl: 'https://picsum.photos/seed/skygame/600/400', link: 'https://buzhixingyun.github.io/Sky/'
+                imageUrl: 'https://gitee.com/konatatata/material/raw/master/skytool.png', link: 'https://buzhixingyun.github.io/Sky/'
             },
             {
                 id: '2', title: 'AI 工具合集', description: '整合了各种有趣的 AI 玩法和 API 演示，从对话到绘画，探索人工智能的无限可能。', tags: ['AI', 'Gemini', 'Demo', 'Future'],
-                imageUrl: 'https://picsum.photos/seed/ai-tools/600/400', link: 'https://buzhixingyun.github.io/AI-/'
+                imageUrl: 'https://gitee.com/konatatata/material/raw/master/AI123.png', link: 'https://buzhixingyun.github.io/AI-/'
             },
             {
                 id: '3', title: '动作捕捉回忆圣诞树', description: '一个充满温情的 3D 互动项目，记录美好的圣诞回忆。支持简单的动作捕捉互动效果。', tags: ['Three.js', '3D', 'Memory', 'Xmas'],
-                imageUrl: 'https://picsum.photos/seed/xmas-tree/600/400', link: 'https://buzhixingyun.github.io/xuhuan/'
+                imageUrl: 'https://gitee.com/konatatata/material/raw/master/dzbuzhuo.png', link: 'https://buzhixingyun.github.io/xuhuan/'
             }
         ];
 
         // ==========================================
-        // 2. ICONS (SVG 图标组件)
+        // 2. ICONS
         // ==========================================
         const Icon = ({ path, className, ...props }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
@@ -140,7 +133,6 @@
             </svg>
         );
 
-        // Custom QQ Penguin Icon (SVG)
         const QQIcon = (props) => (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
             <path d="M12 2C7.5 2 4 5.5 4 10C4 11.5 4.5 12.8 5.2 14C4.5 14.5 3.5 15.5 3.5 15.5C3.5 15.5 3 17.5 5 19C5.5 19.5 7 20 8 20C9 21 10.5 21.5 12 21.5C13.5 21.5 15 21 16 20C17 20 18.5 19.5 19 19C21 17.5 20.5 15.5 20.5 15.5C20.5 15.5 19.5 14.5 18.8 14C19.5 12.8 20 11.5 20 10C20 5.5 16.5 2 12 2Z" fill="currentColor" fillOpacity="0.1" strokeWidth="0" />
@@ -201,15 +193,14 @@
 
             if (!apiKey) return "唔... 好像没有找到 API Key？(没有 Key 没法思考啦)";
 
-            // 使用火山引擎兼容 OpenAI 的接口
+            // Volcengine / Ark endpoint
             const url = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 
             try {
-                // Convert history format to OpenAI format
                 const messages = [
                      { role: 'system', content: PERSONAL_INFO.systemInstruction },
                      ...history.map(h => ({
-                        role: h.role === 'user' ? 'user' : 'assistant', // Map 'model' to 'assistant'
+                        role: h.role === 'user' ? 'user' : 'assistant',
                         content: h.text
                     })),
                     { role: 'user', content: message }
@@ -232,7 +223,6 @@
                 
                 if (data.error) {
                     console.error("Doubao Error:", data.error);
-                    // 友好的错误提示
                     if (data.error.code === 'model_not_found' || data.error.message?.includes('endpoint')) {
                          throw new Error(`请检查 Endpoint ID 是否正确。(${data.error.message})`);
                     }
@@ -250,7 +240,6 @@
         // 4. CUSTOM HOOKS & UTILS
         // ==========================================
         
-        // 全局注入 Referrer Policy 防盗链绕过逻辑
         const useReferrerGuard = () => {
             React.useEffect(() => {
                 let meta = document.querySelector('meta[name="referrer"]');
@@ -265,22 +254,19 @@
             }, []);
         };
 
-        // 预加载单张图片函数 (支持缓存)
         const preloadImage = (src) => {
             return new Promise((resolve) => {
                 const img = new Image();
-                // 关键：在这里也设置 no-referrer，确保预加载的请求也能绕过防盗链
                 img.referrerPolicy = "no-referrer"; 
                 img.onload = () => resolve(true);
                 img.onerror = () => {
                     console.warn(`[Preload] Failed: ${src}`);
-                    resolve(false); // 失败也不阻塞应用启动
+                    resolve(false);
                 };
                 img.src = src;
             });
         };
 
-        // 安全图片组件：处理加载状态和防盗链属性
         const SafeImage = ({ src, alt, className, ...props }) => {
             const [isLoaded, setIsLoaded] = React.useState(false);
             const [isError, setIsError] = React.useState(false);
@@ -314,17 +300,11 @@
 
             React.useEffect(() => {
                 const startLoading = async () => {
-                    // 1. 等待所有关键图片加载完成
                     await Promise.all([
                         ...CRITICAL_ASSETS.map(url => preloadImage(url)),
-                        // 2. 至少展示 1.5 秒动画，防止闪屏
                         new Promise(resolve => setTimeout(resolve, 1500))
                     ]);
-                    
-                    // 3. 开始淡出动画
                     setFadeOut(true);
-                    
-                    // 4. 动画结束后通知父组件卸载
                     setTimeout(() => {
                         setVisible(false);
                         onFinished();
@@ -520,7 +500,7 @@
                                     className="bg-white/95 backdrop-blur-xl border-2 border-white/60 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 ease-out flex flex-col group cursor-pointer relative hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-2 active:scale-95 active:bg-primary/5 active:border-primary/30"
                                 >
                                     <div className="relative overflow-hidden aspect-video bg-white">
-                                        <SafeImage src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                        <SafeImage src={project.imageUrl} alt={project.title} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
                                         
                                         <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-500" />
                                         
@@ -690,7 +670,6 @@
             const [bgImage, setBgImage] = React.useState(null);
             const [isPreloading, setIsPreloading] = React.useState(true);
 
-            // 启用全局 Referrer 保护
             useReferrerGuard();
 
             const scrollToSection = (id) => {
